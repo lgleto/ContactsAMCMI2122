@@ -8,15 +8,15 @@ import android.view.ViewGroup
 import android.widget.BaseAdapter
 import android.widget.ListView
 import android.widget.TextView
+import com.google.android.material.floatingactionbutton.FloatingActionButton
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 import java.text.FieldPosition
 
 class MainActivity : AppCompatActivity() {
 
-    var contacts : List<Contact> = arrayListOf(
-        Contact("Toni", "910905926"),
-        Contact("Diogo", "934691855"),
-        Contact("Tiago", "913229818")
-    )
+    var contacts : List<Contact> = arrayListOf()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -25,6 +25,27 @@ class MainActivity : AppCompatActivity() {
         val listViewContacts = findViewById<ListView>(R.id.listViewContacts)
         val contactsAdapter = ContactsAdapter()
         listViewContacts.adapter = contactsAdapter
+
+        findViewById<FloatingActionButton>(R.id.floatingActionButton)
+            .setOnClickListener {
+                val intent = Intent(this@MainActivity, ContactDetailActivity::class.java)
+                startActivity(intent)
+        }
+
+        GlobalScope.launch (Dispatchers.IO){
+            AppDatabase
+                .getDatabase(this@MainActivity)
+                ?.contactDao()
+                ?.getAll()?.let{
+                    this@MainActivity.contacts = it
+                    GlobalScope.launch(Dispatchers.Main) {
+                        contactsAdapter.notifyDataSetChanged()
+                    }
+                }
+
+        }
+
+        
     }
 
     inner class ContactsAdapter : BaseAdapter(){
