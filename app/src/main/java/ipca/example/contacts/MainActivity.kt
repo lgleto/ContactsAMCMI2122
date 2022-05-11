@@ -32,18 +32,15 @@ class MainActivity : AppCompatActivity() {
                 startActivity(intent)
         }
 
-        GlobalScope.launch (Dispatchers.IO){
-            AppDatabase
-                .getDatabase(this@MainActivity)
-                ?.contactDao()
-                ?.getAll()?.let{
-                    this@MainActivity.contacts = it
-                    GlobalScope.launch(Dispatchers.Main) {
-                        contactsAdapter.notifyDataSetChanged()
-                    }
-                }
+        AppDatabase
+            .getDatabase(this@MainActivity)
+            ?.contactDao()
+            ?.getAllLive()?.observe(this){
+                this@MainActivity.contacts = it
+                contactsAdapter.notifyDataSetChanged()
+            }
 
-        }
+
 
         
     }
@@ -71,8 +68,7 @@ class MainActivity : AppCompatActivity() {
 
             rootView.setOnClickListener {
                 val intent = Intent(this@MainActivity, ContactDetailActivity::class.java)
-                intent.putExtra(ContactDetailActivity.CONTACT_NAME, contacts[position].name)
-                intent.putExtra(ContactDetailActivity.CONTACT_PHONE, contacts[position].phone)
+                intent.putExtra(ContactDetailActivity.CONTACT_ID, contacts[position].uid)
                 startActivity(intent)
             }
 

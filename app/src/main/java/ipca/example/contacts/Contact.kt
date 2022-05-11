@@ -1,6 +1,7 @@
 package ipca.example.contacts
 
 import androidx.annotation.NonNull
+import androidx.lifecycle.LiveData
 import androidx.room.*
 import java.util.*
 
@@ -25,11 +26,18 @@ interface ContactDao {
     @Query("SELECT * FROM contact")
     fun getAll(): List<Contact>
 
+    @Query("SELECT * FROM contact")
+    fun getAllLive(): LiveData<List<Contact>>
+
     @Query("SELECT * FROM contact WHERE uid = :uid")
     fun getById(uid:String ): Contact
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insert(contact: Contact)
+
+    @Update
+    fun update(contact: Contact)
+
 
     @Delete
     fun delete(contact: Contact)
